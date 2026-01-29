@@ -54,15 +54,16 @@ jobs:
             -push
             -comments
             -output-format sarif
-            -output semgrep-results.sarif
+            -output /github/workspace/semgrep-results.sarif
             -verbose
 
       - name: Upload SARIF to GitHub Security tab
-        if: always() && hashFiles('semgrep-results.sarif') != ''
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: semgrep-results.sarif
           category: sast
+        continue-on-error: true
 
   # ============================================
   # Secrets - Gitleaks (Credential Detection)
@@ -90,15 +91,16 @@ jobs:
             -push
             -comments
             -output-format sarif
-            -output gitleaks-results.sarif
+            -output /github/workspace/gitleaks-results.sarif
             -verbose
 
       - name: Upload SARIF to GitHub Security tab
-        if: always() && hashFiles('gitleaks-results.sarif') != ''
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: gitleaks-results.sarif
           category: secrets
+        continue-on-error: true
 
   # ============================================
   # SCA - Trivy (Dependency Vulnerabilities)
@@ -122,14 +124,15 @@ jobs:
             -target .
             -push
             -output-format sarif
-            -output trivy-results.sarif
+            -output /github/workspace/trivy-results.sarif
 
       - name: Upload SARIF to GitHub Security tab
-        if: always() && hashFiles('trivy-results.sarif') != ''
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
           category: sca
+        continue-on-error: true
 
   # ============================================
   # Docker Image Scan (on main branch)
@@ -165,12 +168,13 @@ jobs:
             -target vapi:scan
             -push
             -output-format sarif
-            -output trivy-docker-results.sarif
+            -output /github/workspace/trivy-docker-results.sarif
             -verbose
 
       - name: Upload SARIF to GitHub Security tab
-        if: always() && hashFiles('trivy-docker-results.sarif') != ''
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-docker-results.sarif
           category: container
+        continue-on-error: true
