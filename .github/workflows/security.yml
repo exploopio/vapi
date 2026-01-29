@@ -53,7 +53,8 @@ jobs:
             -target .
             -push
             -comments
-            -sarif semgrep-results.sarif
+            -output-format sarif
+            -output semgrep-results.sarif
             -verbose
 
       - name: Upload SARIF to GitHub Security tab
@@ -88,7 +89,8 @@ jobs:
             -target .
             -push
             -comments
-            -sarif gitleaks-results.sarif
+            -output-format sarif
+            -output gitleaks-results.sarif
             -verbose
 
       - name: Upload SARIF to GitHub Security tab
@@ -119,7 +121,8 @@ jobs:
             -tool trivy-fs
             -target .
             -push
-            -sarif trivy-results.sarif
+            -output-format sarif
+            -output trivy-results.sarif
 
       - name: Upload SARIF to GitHub Security tab
         if: always() && hashFiles('trivy-results.sarif') != ''
@@ -161,7 +164,8 @@ jobs:
             -tool trivy-image
             -target vapi:scan
             -push
-            -sarif trivy-docker-results.sarif
+            -output-format sarif
+            -output trivy-docker-results.sarif
             -verbose
 
       - name: Upload SARIF to GitHub Security tab
