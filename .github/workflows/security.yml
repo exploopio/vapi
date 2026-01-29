@@ -140,11 +140,14 @@ jobs:
             -output-format sarif
             -output /github/workspace/trivy-results.sarif
 
-      - name: Fix SARIF permissions
+      - name: Fix SARIF permissions and locations
         if: always()
         run: |
           if [ -f trivy-results.sarif ]; then
             sudo chown $(id -u):$(id -g) trivy-results.sarif
+            # Fix missing/empty locations - GitHub requires at least one location per result
+            jq '(.runs[].results[] | select(.locations == null or .locations == [])) .locations = [{"physicalLocation": {"artifactLocation": {"uri": "composer.json"}, "region": {"startLine": 1}}}]' \
+              trivy-results.sarif > trivy-results-fixed.sarif && mv trivy-results-fixed.sarif trivy-results.sarif || echo "Warning: Could not fix SARIF locations"
           fi
 
       - name: Upload SARIF to GitHub Security tab
@@ -192,11 +195,14 @@ jobs:
             -output /github/workspace/trivy-docker-results.sarif
             -verbose
 
-      - name: Fix SARIF permissions
+      - name: Fix SARIF permissions and locations
         if: always()
         run: |
           if [ -f trivy-docker-results.sarif ]; then
             sudo chown $(id -u):$(id -g) trivy-docker-results.sarif
+            # Fix missing/empty locations - GitHub requires at least one location per result
+            jq '(.runs[].results[] | select(.locations == null or .locations == [])) .locations = [{"physicalLocation": {"artifactLocation": {"uri": "Dockerfile"}, "region": {"startLine": 1}}}]' \
+              trivy-docker-results.sarif > trivy-docker-results-fixed.sarif && mv trivy-docker-results-fixed.sarif trivy-docker-results.sarif || echo "Warning: Could not fix SARIF locations"
           fi
 
       - name: Upload SARIF to GitHub Security tab
